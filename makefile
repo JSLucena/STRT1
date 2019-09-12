@@ -1,9 +1,9 @@
 all:main
 
 main : main.o
-	gcc -o main  main.o
+	g++ -o main  main.o
 main.o : main.c
-	gcc -o main.o main.c -c	
+	g++ -c main.c	
 
 clean:
 	rm -rf *.o *~ main
