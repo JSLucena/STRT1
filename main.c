@@ -1,3 +1,4 @@
+#define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
 
 #define MAX_N 26
@@ -10,7 +11,11 @@ typedef struct {
   int d;
 } TAREFA;
 
+
 TAREFA tarefas[MAX_N], Prontos[MAX_N];
+int n_proc;
+TAREFA idle;
+
 
 void startOrder(int n, TAREFA tarefas[])
 {
@@ -42,60 +47,215 @@ void startOrder(int n, TAREFA tarefas[])
 		printf("tarefa %c slack %d\n", Prontos[j].id, (Prontos[j].d - Prontos[j].c));
 }
 
-
-TAREFA escalonador(TAREFA running, int* n, int tempo)
+void returningTasks(int tempo, int n)
 {
-  TAREFA aux[MAX_N], t;
-  int i = 0, j;
-  if(running.c <= 0)
-  {
-   
-      t = Prontos[0];
-      printf("%d\n",*n);
-      printf("estou aqui");
-      *n--;
-      printf("%d\n",*n);
-      for(int k = 0; k<*n;k++) 
-        Prontos[k] = Prontos[k+1];
-      return t;
-      
-  }
-  for(int k = 0; k<*n;k++)
-    aux[k] = Prontos[k];
-  if((running.d - running.c) < (Prontos[0].d - aux[0].c))
-    return running;
-  for(i = 0;i<*n;i++)
-  {
-      if((running.d - running.c) < (aux[i].d - aux[i].c))
-      {
-        break;
-      }
-  }
-  Prontos[i] = running;
-  for(j = i+1;j<*n;j++)
-  {
-    Prontos[j] = aux[j-1]; 
-  }
+	TAREFA nova_tarefa;
+	TAREFA aux[MAX_N];
+	int j;
+	for (int k = 0; k < n_proc; k++)
+		aux[k] = Prontos[k];
 
-  
-   t = Prontos[0];
-  for(int k = 0; k<*n;k++)
-    aux[k] = Prontos[k];
-  for(i = 1; i<*n;i++)
-  {
-    Prontos[i] = aux[i-1];
-  }
+	for (int i = 0; i < n; i++)
+	{
+		if (tempo % tarefas[i].p == 0)
+		{
+		//	printf("tarefa %c\n", tarefas[i].id);
+			nova_tarefa.id = tarefas[i].id;
+			nova_tarefa.p = tarefas[i].p + tempo;
+			nova_tarefa.d = tarefas[i].d + tempo;
+			nova_tarefa.c = tarefas[i].c;
+			if (n_proc == 1 || n_proc == 0)
+			{
+				Prontos[0] = nova_tarefa;
+				n_proc++;
 
-  return t;
+			}
+			else
+			{
+				for (j = 0; i < n_proc; i++)
+				{
+					if ((nova_tarefa.d - nova_tarefa.c - tempo) < (Prontos[j].d - Prontos[j].c - tempo))
+						break;
+				}
+				Prontos[j] = nova_tarefa;
+				for (j = j + 1; j < n_proc; j++)
+				{
+					Prontos[j] = aux[j - 1];
+				}
+				n_proc++;
+				
+			}
+		}
+	}
+	for (j = 0; j < n_proc - 1; j++)
+	{
+		printf("]%c[", Prontos[j].id);
+	}
+	printf("\n");
+	
 }
+TAREFA escalonador(TAREFA running, int tempo)
+{
+	TAREFA aux[MAX_N], t;
+	TAREFA order;
+	int i = 0, j;
+	int min_slack;
+	
+	/*
+	if(running.c <= 0)
+	{
 
+	  //  printf("estou aqui");
+		t = Prontos[0];
+		for(int k = 0; k<n_proc-1;k++)
+		  Prontos[k] = Prontos[k+1];
+		n_proc--;
+		if (n_proc == 0)
+			return idle;
+		return t;
+
+	}
+	if (n_proc == 1)
+	{
+		return running;
+	}
+
+	for(int k = 0; k<n_proc;k++)
+	  aux[k] = Prontos[k];
+	if((running.d - running.c - tempo) < (Prontos[0].d - Prontos[0].c - tempo))
+	  return running;
+	else if ((running.d - running.c - tempo) == (Prontos[0].d - Prontos[0].c - tempo))
+	{
+		if (running.id < Prontos[0].id)
+		{
+			return running;
+		}
+	}
+	for(i = 0;i<n_proc-1;i++)
+	{
+		if((running.d - running.c - tempo) < (aux[i].d - aux[i].c - tempo))
+		{
+		  break;
+		}
+		else if ((running.d - running.c - tempo) == (aux[i].d - aux[i].c - tempo))
+		{
+			if (running.id < Prontos[0].id)
+			{
+				break;
+			}
+		}
+	}
+
+	//printf(" %d %c", i,running.id);
+	Prontos[i] = running;
+
+	if (i != n_proc - 1)
+	{
+		for (j = i + 1; j < n_proc; j++)
+		{
+			Prontos[j] = aux[j - 1];
+		}
+	}
+
+	 t = Prontos[0];
+	for(int k = 0; k<n_proc;k++)
+	  aux[k] = Prontos[k];
+	for(i = 0; i<n_proc;i++)
+	{
+	  Prontos[i] = aux[i+1];
+	}
+   */
+	if (n_proc == 1)
+	{
+		if(running.c == 0)
+		{ 
+			n_proc--;
+			return idle;
+		}
+				
+		return running;
+
+	}
+	if (n_proc > 0)
+	{
+		if (running.c > 0)
+		{
+			Prontos[n_proc - 1] = running;
+
+			for (int i = 0; i < n_proc; i++)
+			{
+				for (int j = 1; j < n_proc; j++)
+				{
+					if ((Prontos[j].d - Prontos[j].c - tempo) < (Prontos[i].d - Prontos[i].c - tempo))
+					{
+						order = Prontos[j];
+						Prontos[j] = Prontos[i];
+						Prontos[i] = order;
+					}
+					else if ((Prontos[j].d - Prontos[j].c - tempo) == (Prontos[i].d - Prontos[i].c - tempo))
+					{
+						if (Prontos[j].id < Prontos[i].id)
+						{
+							order = Prontos[j];
+							Prontos[j] = Prontos[i];
+							Prontos[i] = order;
+						}
+					}
+				}
+
+			}
+
+		}
+		else
+		{
+			n_proc--;
+			
+			for (int i = 0; i < n_proc; i++)
+			{
+				for (int j = 1; j < n_proc; j++)
+				{
+					if ((Prontos[j].d - Prontos[j].c - tempo) < (Prontos[i].d - Prontos[i].c - tempo))
+					{
+						order = Prontos[j];
+						Prontos[j] = Prontos[i];
+						Prontos[i] = order;
+					}
+					else if ((Prontos[j].d - Prontos[j].c - tempo) == (Prontos[i].d - Prontos[i].c - tempo))
+					{
+						if (Prontos[j].id < Prontos[i].id)
+						{
+							order = Prontos[j];
+							Prontos[j] = Prontos[i];
+							Prontos[i] = order;
+						}
+					}
+				}
+
+			}
+		}
+		t = Prontos[0];
+		for (int k = 0; k < n_proc; k++)
+			aux[k] = Prontos[k];
+		for (i = 0; i < n_proc; i++)
+		{
+			Prontos[i] = aux[i + 1];
+		}
+		return t;
+	}
+}
 int main() {
   TAREFA  executando;
   int n, t, i;
-  int n_proc;
+  
   char grade[MAX_T+1];
   int num_preemp, num_trocas_cont;
-  
+
+  idle.id = '.';
+  idle.d = 0;
+  idle.p = 0;
+  idle.c = 0;
+
+
   while (1) {
     // LEITURA
     scanf("%d%d", &n, &t);
@@ -111,16 +271,19 @@ int main() {
     num_preemp = 0;
     num_trocas_cont = 0;
 	startOrder(n, tarefas);
-  executando = Prontos[0];
-  for(int k = 0; k<n;k++) 
+	executando = Prontos[0];
+	for(int k = 0; k<n;k++) 
       Prontos[k] = Prontos[k+1];
       n_proc = n;
       
-	for(int i = 1; i < t; i++)
+	for(int i = 1; i <= t; i++)
 	{
-      executando.c--;
-      printf("%c-%d==%d\n",executando.id,executando.c,n_proc);
-      executando = escalonador(executando, &n_proc, t);
+		
+		executando = escalonador(executando, i);
+		executando.c--;
+		printf("%c-%d==%d##%d     ",executando.id,executando.c,n_proc,i);
+		returningTasks(i, n);
+      
 	}
     grade[0] = '.';
     grade[1] = '.';
