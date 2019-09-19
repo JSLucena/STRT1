@@ -1,0 +1,14 @@
+acho que o bug ta no escalonador, quando o existem 0 processos executando(idle) mas 1 processo na fila(n_proc == 1). Ele está retornando o próprio idle e pulando o processo.
+
+if (n_proc == 1)
+	{
+		if(running.c == 0)
+		{ 
+			n_proc--;
+			num_trocas_cont++;
+		//	printf("].[\n");
+			return idle;
+		}
+	//	else
+		//	printf("]%c[\n",running.id);		
+		return running;
