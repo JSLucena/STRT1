@@ -1,0 +1,10 @@
+./main < lst-000.in > lst-000.out
+diff -w lst-000.out lst-000.res
+./main < lst-001.in > lst-001.out
+diff -w lst-001.out lst-001.res
+./main < lst-002.in > lst-002.out
+diff -w lst-002.out lst-002.res
+./main < lst-003.in > lst-003.out
+diff -w lst-003.out lst-003.res
+./main < lst-004.in > lst-004.out
+diff -w lst-004.out lst-004.res
