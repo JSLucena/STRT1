@@ -129,8 +129,18 @@ TAREFA escalonador(TAREFA running, int tempo)
 			return idle;
 		}
 	//	else
-		//	printf("]%c[\n",running.id);		
-		return running;
+		//	printf("]%c[\n",running.id);
+		if(running.id == idle.id)
+		{		
+			t = Prontos[0];
+			Prontos[0] = Prontos[1];
+			return t;
+		}
+		else
+		{
+			return running;
+		}
+		
 
 	}
 	if (n_proc > 0)
