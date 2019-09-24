@@ -134,6 +134,7 @@ TAREFA escalonador(TAREFA running, int tempo)
 		{		
 			t = Prontos[0];
 			Prontos[0] = Prontos[1];
+			num_trocas_cont++;
 			return t;
 		}
 		else
